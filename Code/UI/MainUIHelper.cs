@@ -5,16 +5,16 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Cupscale.Cupscale;
 using Cupscale.ImageUtils;
 using Cupscale.IO;
 using Cupscale.Main;
 using Cupscale.OS;
+using Cupscale.Preview;
 using Cyotek.Windows.Forms;
 
 namespace Cupscale.UI
 {
-    internal class MainUIHelper
+    internal static class MainUiHelper
     {
         public enum Mode
         {
@@ -85,10 +85,9 @@ namespace Cupscale.UI
                 if (useNcnn) backend = ESRGAN.Backend.NCNN;
                 await ESRGAN.DoUpscale(Paths.imgInPath, Paths.imgOutPath, mdl, Config.Get("tilesize"),
                     Config.GetBool("alpha"), ESRGAN.PreviewMode.None, backend);
-                if (backend == ESRGAN.Backend.NCNN)
-                    outImg = Directory.GetFiles(Paths.imgOutPath, "*.png*", SearchOption.AllDirectories)[0];
-                else
-                    outImg = Directory.GetFiles(Paths.imgOutPath, "*.tmp", SearchOption.AllDirectories)[0];
+                outImg = backend == ESRGAN.Backend.NCNN
+                    ? Directory.GetFiles(Paths.imgOutPath, "*.png*", SearchOption.AllDirectories)[0]
+                    : Directory.GetFiles(Paths.imgOutPath, "*.tmp", SearchOption.AllDirectories)[0];
                 await Upscale.PostprocessingSingle(outImg);
                 var outFilename = Upscale.FilenamePostprocess(lastOutfile);
                 await Upscale.CopyImagesTo(Path.GetDirectoryName(Program.lastFilename));
@@ -119,9 +118,7 @@ namespace Cupscale.UI
 
         public static bool HasValidModelSelection()
         {
-            var valid = true;
-            if (model1.Enabled && !File.Exists(Program.currentModel1))
-                valid = false;
+            var valid = !(model1.Enabled && !File.Exists(Program.currentModel1));
             if (model2.Enabled && !File.Exists(Program.currentModel2))
                 valid = false;
             return valid;
@@ -192,54 +189,58 @@ namespace Cupscale.UI
             if (Config.Get("cudaFallback").GetInt() == 1) backend = ESRGAN.Backend.CPU;
             if (Config.Get("cudaFallback").GetInt() == 3) backend = ESRGAN.Backend.NCNN;
 
-            if (currentMode == Mode.Single)
+            switch (currentMode)
             {
-                var mdl1 = Program.currentModel1;
-                if (string.IsNullOrWhiteSpace(mdl1)) return;
-                var mdl = new ModelData(mdl1, null, ModelData.ModelMode.Single);
-                await ESRGAN.DoUpscale(Paths.previewPath, Paths.previewOutPath, mdl, tilesize, alpha, prevMode,
-                    backend);
-            }
-
-            if (currentMode == Mode.Interp)
-            {
-                var mdl1 = Program.currentModel1;
-                var mdl2 = Program.currentModel2;
-                if (string.IsNullOrWhiteSpace(mdl1) || string.IsNullOrWhiteSpace(mdl2)) return;
-                var mdl = new ModelData(mdl1, mdl2, ModelData.ModelMode.Interp, interpValue);
-                await ESRGAN.DoUpscale(Paths.previewPath, Paths.previewOutPath, mdl, tilesize, alpha, prevMode,
-                    backend);
-            }
-
-            if (currentMode == Mode.Chain)
-            {
-                var mdl1 = Program.currentModel1;
-                var mdl2 = Program.currentModel2;
-                if (string.IsNullOrWhiteSpace(mdl1) || string.IsNullOrWhiteSpace(mdl2)) return;
-                var mdl = new ModelData(mdl1, mdl2, ModelData.ModelMode.Chain);
-                await ESRGAN.DoUpscale(Paths.previewPath, Paths.previewOutPath, mdl, tilesize, alpha, prevMode,
-                    backend);
-            }
-
-            if (currentMode == Mode.Advanced)
-            {
-                var mdl = new ModelData(null, null, ModelData.ModelMode.Advanced);
-                await ESRGAN.DoUpscale(Paths.previewPath, Paths.previewOutPath, mdl, tilesize, alpha, prevMode,
-                    backend);
+                case Mode.Single:
+                {
+                    var mdl1 = Program.currentModel1;
+                    if (string.IsNullOrWhiteSpace(mdl1)) return;
+                    var mdl = new ModelData(mdl1, null, ModelData.ModelMode.Single);
+                    await ESRGAN.DoUpscale(Paths.previewPath, Paths.previewOutPath, mdl, tilesize, alpha, prevMode,
+                        backend);
+                    break;
+                }
+                case Mode.Interp:
+                {
+                    var mdl1 = Program.currentModel1;
+                    var mdl2 = Program.currentModel2;
+                    if (string.IsNullOrWhiteSpace(mdl1) || string.IsNullOrWhiteSpace(mdl2)) return;
+                    var mdl = new ModelData(mdl1, mdl2, ModelData.ModelMode.Interp, interpValue);
+                    await ESRGAN.DoUpscale(Paths.previewPath, Paths.previewOutPath, mdl, tilesize, alpha, prevMode,
+                        backend);
+                    break;
+                }
+                case Mode.Chain:
+                {
+                    var mdl1 = Program.currentModel1;
+                    var mdl2 = Program.currentModel2;
+                    if (string.IsNullOrWhiteSpace(mdl1) || string.IsNullOrWhiteSpace(mdl2)) return;
+                    var mdl = new ModelData(mdl1, mdl2, ModelData.ModelMode.Chain);
+                    await ESRGAN.DoUpscale(Paths.previewPath, Paths.previewOutPath, mdl, tilesize, alpha, prevMode,
+                        backend);
+                    break;
+                }
+                case Mode.Advanced:
+                {
+                    var mdl = new ModelData(null, null, ModelData.ModelMode.Advanced);
+                    await ESRGAN.DoUpscale(Paths.previewPath, Paths.previewOutPath, mdl, tilesize, alpha, prevMode,
+                        backend);
+                    break;
+                }
             }
 
             Program.mainForm.SetBusy(false);
         }
 
-        public static void SaveCurrentCutout()
+        private static void SaveCurrentCutout()
         {
-            UIHelpers.ReplaceImageAtSameScale(previewImg, ImgUtils.GetImage(Paths.tempImgPath));
+            UiHelpers.ReplaceImageAtSameScale(previewImg, ImgUtils.GetImage(Paths.tempImgPath));
             var path = Path.Combine(Paths.previewPath, "preview.png");
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             GetCurrentRegion().Save(path);
         }
 
-        public static Bitmap GetCurrentRegion() // thx ieu
+        private static Bitmap GetCurrentRegion() // thx ieu
         {
             var sourceImageRegion = previewImg.GetSourceImageRegion();
             var num = (int) Math.Round(sourceImageRegion.Width);
@@ -261,18 +262,16 @@ namespace Cupscale.UI
             sourceImageRegion.Width = num;
             sourceImageRegion.Height = num2;
             var bitmap = new Bitmap(num, num2);
-            using (var graphics = Graphics.FromImage(bitmap))
-            {
-                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-                graphics.DrawImage(previewImg.Image, new Rectangle(0, 0, num, num2), sourceImageRegion,
-                    GraphicsUnit.Pixel);
-            }
+            using var graphics = Graphics.FromImage(bitmap);
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            graphics.DrawImage(previewImg.Image, new Rectangle(0, 0, num, num2), sourceImageRegion,
+                GraphicsUnit.Pixel);
 
             return bitmap;
         }
 
-        public static SizeF GetCutoutSize()
+        private static SizeF GetCutoutSize()
         {
             var cutoutSize = previewImg.GetSourceImageRegion().Size;
             cutoutSize.Width = (int) Math.Round(cutoutSize.Width);

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
+using Cupscale.IO;
+using Cupscale.Main;
 using Cupscale.UI;
 using static Cupscale.Main.AdvancedModelSelection;
 

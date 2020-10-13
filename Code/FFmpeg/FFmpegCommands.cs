@@ -1,9 +1,11 @@
 ﻿using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
+using Cupscale.IO;
+using Cupscale.Main;
 using Cupscale.UI;
 
-namespace Cupscale
+namespace Cupscale.FFmpeg
 {
     internal class FFmpegCommands
     {

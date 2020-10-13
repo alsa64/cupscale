@@ -3,10 +3,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Cupscale.IO;
-using Cupscale.Main;
 using Cupscale.UI;
 
-namespace Cupscale.Cupscale
+namespace Cupscale.Main
 {
     internal class PostProcessingQueue
     {
@@ -124,7 +123,7 @@ namespace Cupscale.Cupscale
                         File.Delete(outFilename);
                     }
 
-                    BatchUpscaleUI.upscaledImages++;
+                    BatchUpscaleUi.upscaledImages++;
                 }
 
                 await Task.Delay(250);

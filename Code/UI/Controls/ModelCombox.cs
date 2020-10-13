@@ -1,6 +1,7 @@
-﻿using Cupscale;
+﻿using System;
+using System.Windows.Forms;
 
-namespace System.Windows.Forms
+namespace Cupscale.UI.Controls
 {
     internal class ModelCombox : ComboBox
     {
@@ -35,7 +36,7 @@ namespace System.Windows.Forms
             // if (!IsRunning())
             //    return;
             base.OnDropDown(e);
-            UIHelpers.FillModelComboBox(this);
+            UiHelpers.FillModelComboBox(this);
         }
 
         /*

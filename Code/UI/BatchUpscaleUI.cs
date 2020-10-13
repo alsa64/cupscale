@@ -4,14 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Cupscale.Cupscale;
+using Cupscale.ImageUtils;
 using Cupscale.IO;
 using Cupscale.Main;
 using Cupscale.OS;
 
 namespace Cupscale.UI
 {
-    internal class BatchUpscaleUI
+    internal class BatchUpscaleUi
     {
         private static TextBox outDir;
         private static TextBox fileList;
@@ -138,7 +138,7 @@ namespace Cupscale.UI
                 {
                     //int count = PostProcessingQueue.processedFiles.Count;
                     var percentage = (float) upscaledImages / target;
-                    percentage = percentage * 100f;
+                    percentage *= 100f;
                     if (percentage >= 100f)
                         break;
                     if (upscaledImages > 0)

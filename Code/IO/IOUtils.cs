@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Cupscale.Main;
 
-namespace Cupscale
+namespace Cupscale.IO
 {
     internal class IOUtils
     {

@@ -6,12 +6,14 @@ using System.Drawing.Text;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Cupscale.FFmpeg;
 using Cupscale.Forms;
 using Cupscale.ImageUtils;
 using Cupscale.IO;
+using Cupscale.Main;
 using Cupscale.UI;
 
-namespace Cupscale
+namespace Cupscale.Preview
 {
     internal class ClipboardPreview
     {
@@ -290,8 +292,8 @@ namespace Cupscale
                 }
                 else
                 {
-                    await FFmpeg.RunGifski(" -r 1 -W 2048 -q -o " + outpath.WrapPath() + " \"" + framesPath +
-                                           "/\"*.\"png\"");
+                    await FFmpeg.FFmpeg.RunGifski(" -r 1 -W 2048 -q -o " + outpath.WrapPath() + " \"" + framesPath +
+                                                  "/\"*.\"png\"");
                 }
 
                 if (save)

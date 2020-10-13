@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Cupscale.IO;
 using Cupscale.UI;
 using ImageMagick;
 using Paths = Cupscale.IO.Paths;
 
-namespace Cupscale
+namespace Cupscale.Main
 {
     internal static class Program
     {

@@ -1,9 +1,10 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
+using Cupscale.IO;
 using DT = System.DateTime;
 
-namespace Cupscale
+namespace Cupscale.Main
 {
     internal class Logger
     {

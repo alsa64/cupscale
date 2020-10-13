@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Cupscale.ImageUtils;
 using Cupscale.IO;
 using Cupscale.UI;
-using static Cupscale.UI.MainUIHelper;
+using static Cupscale.UI.MainUiHelper;
 
 namespace Cupscale.Main
 {
@@ -90,14 +91,14 @@ namespace Cupscale.Main
         {
             var mdl = new ModelData();
 
-            if (MainUIHelper.currentMode == Mode.Single)
+            if (MainUiHelper.currentMode == Mode.Single)
             {
                 var mdl1 = Program.currentModel1;
                 if (string.IsNullOrWhiteSpace(mdl1)) return mdl;
                 mdl = new ModelData(mdl1, null, ModelData.ModelMode.Single);
             }
 
-            if (MainUIHelper.currentMode == Mode.Interp)
+            if (MainUiHelper.currentMode == Mode.Interp)
             {
                 var mdl1 = Program.currentModel1;
                 var mdl2 = Program.currentModel2;
@@ -105,7 +106,7 @@ namespace Cupscale.Main
                 mdl = new ModelData(mdl1, mdl2, ModelData.ModelMode.Interp, interpValue);
             }
 
-            if (MainUIHelper.currentMode == Mode.Chain)
+            if (MainUiHelper.currentMode == Mode.Chain)
             {
                 var mdl1 = Program.currentModel1;
                 var mdl2 = Program.currentModel2;
@@ -113,7 +114,7 @@ namespace Cupscale.Main
                 mdl = new ModelData(mdl1, mdl2, ModelData.ModelMode.Chain);
             }
 
-            if (MainUIHelper.currentMode == Mode.Advanced)
+            if (MainUiHelper.currentMode == Mode.Advanced)
                 mdl = new ModelData(null, null, ModelData.ModelMode.Advanced);
 
             return mdl;

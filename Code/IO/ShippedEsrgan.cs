@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Cupscale.Forms;
+using Cupscale.Main;
 using Cupscale.Properties;
 using Cupscale.UI;
 using SevenZipNET;

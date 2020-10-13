@@ -1,4 +1,4 @@
-﻿namespace Cupscale
+﻿namespace Cupscale.FFmpeg
 {
     internal class FFmpegStrings
     {

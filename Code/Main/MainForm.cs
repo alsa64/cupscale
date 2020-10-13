@@ -4,18 +4,17 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Cupscale.Cupscale;
 using Cupscale.Forms;
 using Cupscale.ImageUtils;
 using Cupscale.IO;
-using Cupscale.Main;
 using Cupscale.OS;
+using Cupscale.Preview;
 using Cupscale.UI;
 using Cyotek.Windows.Forms;
 using ImageMagick;
 using Paths = Cupscale.IO.Paths;
 
-namespace Cupscale
+namespace Cupscale.Main
 {
     public partial class MainForm : Form
     {
@@ -33,8 +32,8 @@ namespace Cupscale
             EsrganData.ReloadModelList();
             CheckForIllegalCrossThreadCalls = false;
             InitializeComponent();
-            MainUIHelper.Init(previewImg, model1TreeBtn, model2TreeBtn, prevOutputFormatCombox, prevOverwriteCombox);
-            BatchUpscaleUI.Init(batchOutDir, batchFileList);
+            MainUiHelper.Init(previewImg, model1TreeBtn, model2TreeBtn, prevOutputFormatCombox, prevOverwriteCombox);
+            BatchUpscaleUi.Init(batchOutDir, batchFileList);
             Program.mainForm = this;
             WindowState = FormWindowState.Maximized;
         }
@@ -42,19 +41,19 @@ namespace Cupscale
         private async void MainForm_Load(object sender, EventArgs e)
         {
             // Left Panel
-            UIHelpers.InitCombox(prevClipboardTypeCombox, 0);
-            UIHelpers.InitCombox(preResizeScale, 1);
-            UIHelpers.InitCombox(preResizeMode, 0);
-            UIHelpers.FillEnumComboBox(preResizeFilter, typeof(Upscale.Filter));
+            UiHelpers.InitCombox(prevClipboardTypeCombox, 0);
+            UiHelpers.InitCombox(preResizeScale, 1);
+            UiHelpers.InitCombox(preResizeMode, 0);
+            UiHelpers.FillEnumComboBox(preResizeFilter, typeof(Upscale.Filter));
             // Right Panel
-            UIHelpers.InitCombox(prevOverwriteCombox, 0);
-            UIHelpers.InitCombox(prevOutputFormatCombox, 0);
-            UIHelpers.FillEnumComboBox(prevOutputFormatCombox, typeof(Upscale.ExportFormats));
-            UIHelpers.InitCombox(postResizeScale, 1);
-            UIHelpers.InitCombox(postResizeMode, 0);
-            UIHelpers.FillEnumComboBox(postResizeFilter, typeof(Upscale.Filter));
+            UiHelpers.InitCombox(prevOverwriteCombox, 0);
+            UiHelpers.InitCombox(prevOutputFormatCombox, 0);
+            UiHelpers.FillEnumComboBox(prevOutputFormatCombox, typeof(Upscale.ExportFormats));
+            UiHelpers.InitCombox(postResizeScale, 1);
+            UiHelpers.InitCombox(postResizeMode, 0);
+            UiHelpers.FillEnumComboBox(postResizeFilter, typeof(Upscale.Filter));
             // Batch Upscale
-            UIHelpers.InitCombox(batchOutMode, 0);
+            UiHelpers.InitCombox(batchOutMode, 0);
             await CheckInstallation();
 
             NvApi.Init();
@@ -168,7 +167,7 @@ namespace Cupscale
 
         private void UpdatePreviewInfo()
         {
-            MainUIHelper.UpdatePreviewLabels(prevZoomLabel, prevSizeLabel, prevCutoutLabel);
+            MainUiHelper.UpdatePreviewLabels(prevZoomLabel, prevSizeLabel, prevCutoutLabel);
         }
 
         private void settingsBtn_Click(object sender, EventArgs e)
@@ -197,15 +196,15 @@ namespace Cupscale
             model2TreeBtn.Enabled = interpRbtn.Checked || chainRbtn.Checked;
             interpConfigureBtn.Visible = interpRbtn.Checked;
             advancedConfigureBtn.Visible = advancedBtn.Checked;
-            if (singleModelRbtn.Checked) MainUIHelper.currentMode = MainUIHelper.Mode.Single;
-            if (interpRbtn.Checked) MainUIHelper.currentMode = MainUIHelper.Mode.Interp;
-            if (chainRbtn.Checked) MainUIHelper.currentMode = MainUIHelper.Mode.Chain;
-            if (advancedBtn.Checked) MainUIHelper.currentMode = MainUIHelper.Mode.Advanced;
+            if (singleModelRbtn.Checked) MainUiHelper.currentMode = MainUiHelper.Mode.Single;
+            if (interpRbtn.Checked) MainUiHelper.currentMode = MainUiHelper.Mode.Interp;
+            if (chainRbtn.Checked) MainUiHelper.currentMode = MainUiHelper.Mode.Chain;
+            if (advancedBtn.Checked) MainUiHelper.currentMode = MainUiHelper.Mode.Advanced;
         }
 
         private void interpConfigureBtn_Click(object sender, EventArgs e)
         {
-            if (!MainUIHelper.HasValidModelSelection())
+            if (!MainUiHelper.HasValidModelSelection())
             {
                 MessageBox.Show("Please select two models for interpolation.", "Message");
                 return;
@@ -241,7 +240,7 @@ namespace Cupscale
                 var compatFilesAmount = IOUtils.GetAmountOfCompatibleFiles(path, true);
                 batchDirLabel.Text =
                     "Loaded " + path.WrapPath() + " - Found " + compatFilesAmount + " compatible files.";
-                BatchUpscaleUI.LoadDir(path);
+                BatchUpscaleUi.LoadDir(path);
                 upscaleBtn.Text = "Upscale " + compatFilesAmount + " Images";
                 return;
             }
@@ -250,7 +249,7 @@ namespace Cupscale
             {
                 htTabControl.SelectedIndex = 1;
                 var compatFilesAmount = IOUtils.GetAmountOfCompatibleFiles(files);
-                BatchUpscaleUI.LoadImages(files);
+                BatchUpscaleUi.LoadImages(files);
                 batchDirLabel.Text = "Loaded " + compatFilesAmount + " compatible files.";
                 upscaleBtn.Text = "Upscale " + compatFilesAmount + " Images";
                 return;
@@ -262,8 +261,8 @@ namespace Cupscale
             SetProgress(0f, "Loading image...");
             loadingDialogForm = new DialogForm("Loading " + Path.GetFileName(path) + "...");
             await Task.Delay(20);
-            MainUIHelper.ResetCachedImages();
-            if (!MainUIHelper.DroppedImageIsValid(path))
+            MainUiHelper.ResetCachedImages();
+            if (!MainUiHelper.DroppedImageIsValid(path))
             {
                 SetProgress(0f, "Ready.");
                 await Task.Delay(1);
@@ -309,7 +308,7 @@ namespace Cupscale
                 await ImageProcessing.ConvertImage(path, ImageProcessing.Format.PngRaw, fillAlpha,
                     ImageProcessing.ExtensionMode.UseNew, false, Paths.tempImgPath);
                 previewImg.Image = ImgUtils.GetImage(Paths.tempImgPath);
-                MainUIHelper.currentScale = 1;
+                MainUiHelper.currentScale = 1;
                 previewImg.ZoomToFit();
                 lastZoom = previewImg.Zoom;
             }
@@ -331,7 +330,7 @@ namespace Cupscale
             if (Program.busy)
                 return;
 
-            if (!MainUIHelper.HasValidModelSelection())
+            if (!MainUiHelper.HasValidModelSelection())
             {
                 MessageBox.Show(
                     "Invalid model selection.\nMake sure you have selected a model and that the file still exists.",
@@ -350,9 +349,9 @@ namespace Cupscale
                 ReloadImage();
             UpdateResizeMode();
             if (htTabControl.SelectedIndex == 0)
-                await MainUIHelper.UpscaleImage();
+                await MainUiHelper.UpscaleImage();
             if (htTabControl.SelectedIndex == 1)
-                await BatchUpscaleUI.Run();
+                await BatchUpscaleUi.Run();
         }
 
         public void UpdateResizeMode()
@@ -382,13 +381,13 @@ namespace Cupscale
             if (Config.GetBool("reloadImageBeforeUpscale"))
                 ReloadImage();
             UpdateResizeMode();
-            MainUIHelper.UpscalePreview(true);
+            MainUiHelper.UpscalePreview(true);
         }
 
         private void refreshPreviewCutoutBtn_Click(object sender, EventArgs e)
         {
             UpdateResizeMode();
-            MainUIHelper.UpscalePreview();
+            MainUiHelper.UpscalePreview();
         }
 
         private void copyCompToClipboardBtn_Click(object sender, EventArgs e)
@@ -424,7 +423,7 @@ namespace Cupscale
             previewImg.Image = resetState.image;
             previewImg.Zoom = resetState.zoom;
             previewImg.AutoScrollPosition = resetState.autoScrollPosition; // This doesn't work correctly :/
-            MainUIHelper.ResetCachedImages();
+            MainUiHelper.ResetCachedImages();
             resetImageOnMove = false;
         }
 
@@ -448,7 +447,7 @@ namespace Cupscale
 
         private void openOutFolderBtn_Click(object sender, EventArgs e)
         {
-            MainUIHelper.OpenLastOutputFolder();
+            MainUiHelper.OpenLastOutputFolder();
         }
 
         public void AfterFirstUpscale()
@@ -481,7 +480,7 @@ namespace Cupscale
             var outPath = Path.ChangeExtension(Program.lastFilename, null) + "[temp]" + ext + ".tmp";
             previewImg.Image.Save(outPath);
             await Upscale.PostprocessingSingle(outPath, true);
-            var outFilename = Upscale.FilenamePostprocess(MainUIHelper.lastOutfile);
+            var outFilename = Upscale.FilenamePostprocess(MainUiHelper.lastOutfile);
             var finalPath = IOUtils.ReplaceInFilename(outFilename, "[temp]", "");
             MessageBox.Show("Saved to " + finalPath + ".", "Message");
         }

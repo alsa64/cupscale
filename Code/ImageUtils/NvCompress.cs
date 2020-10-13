@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Threading.Tasks;
+using Cupscale.IO;
+using Cupscale.Main;
 using Cupscale.UI;
 
 namespace Cupscale.ImageUtils

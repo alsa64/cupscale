@@ -1,13 +1,12 @@
 using System.IO;
 using System.Threading.Tasks;
-using Cupscale.Cupscale;
-using Cupscale.ImageUtils;
+using Cupscale.IO;
 using Cupscale.Main;
 using Cupscale.UI;
 using ImageMagick;
 using ImageMagick.Formats.Dds;
 
-namespace Cupscale
+namespace Cupscale.ImageUtils
 {
     internal class ImageProcessing
     {
@@ -280,7 +279,7 @@ namespace Cupscale
                 PostProcessingQueue.lastOutfile = outPath;
 
             if (Upscale.currentMode == Upscale.UpscaleMode.Single)
-                MainUIHelper.lastOutfile = outPath;
+                MainUiHelper.lastOutfile = outPath;
 
             Logger.Log("Writing image as " + img.Format + " to " + outPath);
             img.Write(outPath);
@@ -311,7 +310,7 @@ namespace Cupscale
                 PostProcessingQueue.lastOutfile = outPath;
 
             if (Upscale.currentMode == Upscale.UpscaleMode.Single)
-                MainUIHelper.lastOutfile = outPath;
+                MainUiHelper.lastOutfile = outPath;
 
             if (outPath.ToLower() != path.ToLower())
             {

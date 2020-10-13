@@ -3,11 +3,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Cupscale.Cupscale;
 using Cupscale.Forms;
 using Cupscale.ImageUtils;
 using Cupscale.IO;
 using Cupscale.Main;
+using Cupscale.Preview;
 using Cupscale.UI;
 
 namespace Cupscale.OS
@@ -80,11 +80,11 @@ namespace Cupscale.OS
                         ImgUtils.GetImage(Directory.GetFiles(Paths.previewOutPath, "*.png.*",
                             SearchOption.AllDirectories)[0]);
                     var inputImg = ImgUtils.GetImage(Paths.tempImgPath);
-                    MainUIHelper.previewImg.Image = outImg;
-                    MainUIHelper.currentOriginal = inputImg;
-                    MainUIHelper.currentOutput = outImg;
-                    MainUIHelper.currentScale = ImgUtils.GetScaleFloat(inputImg, outImg);
-                    MainUIHelper.previewImg.ZoomToFit();
+                    MainUiHelper.previewImg.Image = outImg;
+                    MainUiHelper.currentOriginal = inputImg;
+                    MainUiHelper.currentOutput = outImg;
+                    MainUiHelper.currentScale = ImgUtils.GetScaleFloat(inputImg, outImg);
+                    MainUiHelper.previewImg.ZoomToFit();
                     Program.mainForm.SetHasPreview(true);
                     Program.mainForm.SetProgress(0f, "Done.");
                 }

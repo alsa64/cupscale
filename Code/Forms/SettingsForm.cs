@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using Cupscale.IO;
+using Cupscale.Main;
 
 namespace Cupscale.Forms
 {

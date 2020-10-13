@@ -1,13 +1,8 @@
-﻿using System;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.ComponentModel;
 using System.Windows.Forms;
-using Cupscale.UI;
 using ImageBox = Cyotek.Windows.Forms.ImageBox;
-using Cupscale.Properties;
-using System.Drawing.Drawing2D;
 
-namespace Cupscale
+namespace Cupscale.Main
 {
     partial class MainForm
     {

@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
+using Cupscale.IO;
 
-namespace Cupscale
+namespace Cupscale.Main
 {
     internal class EsrganData
     {

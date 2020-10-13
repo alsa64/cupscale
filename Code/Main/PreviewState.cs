@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace Cupscale.Cupscale
+namespace Cupscale.Main
 {
     public struct PreviewState
     {

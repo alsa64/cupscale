@@ -1,20 +1,18 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Cupscale.UI;
+using Cupscale.Main;
 using Cyotek.Windows.Forms;
 
-namespace Cupscale
+namespace Cupscale.UI
 {
-    internal class UIHelpers
+    internal static class UiHelpers
     {
         public static void InitCombox(ComboBox box, int index)
         {
-            if (box.Items.Count >= 1)
-            {
-                box.SelectedIndex = index;
-                box.Text = box.Items[index].ToString();
-            }
+            if (box.Items.Count < 1) return;
+            box.SelectedIndex = index;
+            box.Text = box.Items[index].ToString();
         }
 
         public static void FillModelComboBox(ComboBox box, bool resetIndex = false)

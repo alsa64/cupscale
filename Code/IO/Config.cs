@@ -1,10 +1,9 @@
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Cupscale.IO;
 using Cupscale.UI;
 
-namespace Cupscale
+namespace Cupscale.IO
 {
     internal class Config
     {

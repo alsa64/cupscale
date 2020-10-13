@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Windows.Forms;
+using Cupscale.Main;
 
 namespace Cupscale.Forms
 {

@@ -11,12 +11,9 @@ namespace Cupscale.UI
 {
     public static class ExtensionMethods
     {
-        public static string TrimNumbers(this string s, bool allowDotComma = false)
+        private static string TrimNumbers(this string s, bool allowDotComma = false)
         {
-            if (!allowDotComma)
-                s = Regex.Replace(s, "[^0-9]", "");
-            else
-                s = Regex.Replace(s, "[^.,0-9]", "");
+            s = Regex.Replace(s, !allowDotComma ? "[^0-9]" : "[^.,0-9]", "");
             return s.Trim();
         }
 
@@ -75,7 +72,7 @@ namespace Cupscale.UI
             if (addSpaceFront)
                 s = " " + s;
             if (addSpaceEnd)
-                s = s + " ";
+                s += " ";
             return s;
         }
 
