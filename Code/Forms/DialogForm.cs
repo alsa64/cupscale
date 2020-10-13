@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Cupscale.Forms
@@ -22,12 +15,12 @@ namespace Cupscale.Forms
             SelfDestruct(selfDestructTime);
         }
 
-        public void ChangeText (string s)
+        public void ChangeText(string s)
         {
             mainLabel.Text = s;
         }
 
-        private async Task SelfDestruct (int time)
+        private async Task SelfDestruct(int time)
         {
             await Task.Delay(time * 1000);
             Close();

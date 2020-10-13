@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using Cupscale;
 
 namespace System.Windows.Forms
 {
-    class ModelCombox : ComboBox
+    internal class ModelCombox : ComboBox
     {
-
         //bool initialized = false;
 
-        public ModelCombox ()   // Constructor
+        public ModelCombox() // Constructor
         {
             base.Text = "Open the dropdown to select a model.";
         }
@@ -42,7 +35,7 @@ namespace System.Windows.Forms
             // if (!IsRunning())
             //    return;
             base.OnDropDown(e);
-            Cupscale.UIHelpers.FillModelComboBox(this, false);
+            UIHelpers.FillModelComboBox(this);
         }
 
         /*

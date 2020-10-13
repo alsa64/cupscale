@@ -1,29 +1,58 @@
-﻿using Cupscale.IO;
-using Cupscale.UI;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Forms;
+using Cupscale.IO;
+using Cupscale.UI;
 using static Cupscale.UI.MainUIHelper;
-using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace Cupscale.Main
 {
-    class Upscale
+    internal class Upscale
     {
-        public enum UpscaleMode { Preview, Single, Batch }
+        public enum ExportFormats
+        {
+            PNG,
+            SameAsSource,
+            JPEG,
+            WEBP,
+            BMP,
+            TGA,
+            DDS
+        }
+
+        public enum Filter
+        {
+            Mitchell,
+            Bicubic,
+            NearestNeighbor
+        }
+
+        public enum Overwrite
+        {
+            No,
+            Yes
+        }
+
+        public enum ScaleMode
+        {
+            Percent,
+            PixelsHeight,
+            PixelsWidth,
+            PixelsShorterSide,
+            PixelsLongerSide
+        }
+
+        public enum UpscaleMode
+        {
+            Preview,
+            Single,
+            Batch
+        }
+
         public static UpscaleMode currentMode = UpscaleMode.Preview;
-        public enum ExportFormats { PNG, SameAsSource, JPEG, WEBP, BMP, TGA, DDS }
-        public enum Filter { Mitchell, Bicubic, NearestNeighbor }
-        public enum ScaleMode { Percent, PixelsHeight, PixelsWidth, PixelsShorterSide, PixelsLongerSide }
-        public enum Overwrite { No, Yes, }
         public static Overwrite overwriteMode = Overwrite.No;
 
-    public static async Task CopyImagesTo(string path)
+        public static async Task CopyImagesTo(string path)
         {
             Program.lastOutputDir = path;
             Program.mainForm.AfterFirstUpscale();
@@ -36,6 +65,7 @@ namespace Cupscale.Main
             {
                 Logger.Log("Overwrite is off - keeping suffix.");
             }
+
             IOUtils.Copy(Paths.imgOutPath, path);
             await Task.Delay(1);
             IOUtils.DeleteContentsOfDir(Paths.imgInPath);
@@ -44,53 +74,55 @@ namespace Cupscale.Main
 
         public static async Task AddModelSuffix(string path)
         {
-            DirectoryInfo d = new DirectoryInfo(path);
-            FileInfo[] files = d.GetFiles("*", SearchOption.AllDirectories);
-            foreach (FileInfo file in files)     // Remove PNG extensions
+            var d = new DirectoryInfo(path);
+            var files = d.GetFiles("*", SearchOption.AllDirectories);
+            foreach (var file in files) // Remove PNG extensions
             {
-                string pathNoExt = Path.ChangeExtension(file.FullName, null);
-                string ext = Path.GetExtension(file.FullName);
-                File.Move(file.FullName, pathNoExt + "-" + Program.lastModelName.Replace(":", ".").Replace(">>", "+") + ext);
+                var pathNoExt = Path.ChangeExtension(file.FullName, null);
+                var ext = Path.GetExtension(file.FullName);
+                File.Move(file.FullName,
+                    pathNoExt + "-" + Program.lastModelName.Replace(":", ".").Replace(">>", "+") + ext);
                 await Task.Delay(1);
             }
         }
 
         public static ModelData GetModelData()
         {
-            ModelData mdl = new ModelData();
+            var mdl = new ModelData();
 
             if (MainUIHelper.currentMode == Mode.Single)
             {
-                string mdl1 = Program.currentModel1;
+                var mdl1 = Program.currentModel1;
                 if (string.IsNullOrWhiteSpace(mdl1)) return mdl;
                 mdl = new ModelData(mdl1, null, ModelData.ModelMode.Single);
             }
+
             if (MainUIHelper.currentMode == Mode.Interp)
             {
-                string mdl1 = Program.currentModel1;
-                string mdl2 = Program.currentModel2;
+                var mdl1 = Program.currentModel1;
+                var mdl2 = Program.currentModel2;
                 if (string.IsNullOrWhiteSpace(mdl1) || string.IsNullOrWhiteSpace(mdl2)) return mdl;
                 mdl = new ModelData(mdl1, mdl2, ModelData.ModelMode.Interp, interpValue);
             }
+
             if (MainUIHelper.currentMode == Mode.Chain)
             {
-                string mdl1 = Program.currentModel1;
-                string mdl2 = Program.currentModel2;
+                var mdl1 = Program.currentModel1;
+                var mdl2 = Program.currentModel2;
                 if (string.IsNullOrWhiteSpace(mdl1) || string.IsNullOrWhiteSpace(mdl2)) return mdl;
                 mdl = new ModelData(mdl1, mdl2, ModelData.ModelMode.Chain);
             }
+
             if (MainUIHelper.currentMode == Mode.Advanced)
-            {
                 mdl = new ModelData(null, null, ModelData.ModelMode.Advanced);
-            }
 
             return mdl;
         }
 
-        public static async Task PostprocessingSingle (string path, bool dontResize = false)
+        public static async Task PostprocessingSingle(string path, bool dontResize = false)
         {
             Logger.Log("PostprocessingSingle: " + path);
-            string newPath = "";
+            var newPath = "";
             if (Path.GetExtension(path) != ".tmp")
                 newPath = path.Substring(0, path.Length - 8);
             else
@@ -119,10 +151,10 @@ namespace Cupscale.Main
         {
             try
             {
-                string newFilename = file;
+                var newFilename = file;
 
-                string pathNoExt = Path.ChangeExtension(file, null);
-                string ext = Path.GetExtension(file);
+                var pathNoExt = Path.ChangeExtension(file, null);
+                var ext = Path.GetExtension(file);
 
                 newFilename = pathNoExt + "-" + Program.lastModelName.Replace(":", ".").Replace(">>", "+") + ext;
 

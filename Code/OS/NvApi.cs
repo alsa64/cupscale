@@ -1,27 +1,24 @@
-﻿using NvAPIWrapper;
-using NvAPIWrapper.GPU;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NvAPIWrapper;
+using NvAPIWrapper.GPU;
 
 namespace Cupscale.OS
 {
-    class NvApi
+    internal class NvApi
     {
-        static PhysicalGPU gpu;
-        static float vramGb;
-        static float vramFreeGb;
+        private static PhysicalGPU gpu;
+        private static float vramGb;
+        private static float vramFreeGb;
 
-        public static void Init ()
+        public static void Init()
         {
             try
             {
                 NVIDIA.Initialize();
-                PhysicalGPU[] gpus = PhysicalGPU.GetPhysicalGPUs();
+                var gpus = PhysicalGPU.GetPhysicalGPUs();
                 if (gpus.Length == 0)
                     return;
                 gpu = gpus[0];
@@ -35,21 +32,22 @@ namespace Cupscale.OS
             }
         }
 
-        public static void RefreshVram ()
+        public static void RefreshVram()
         {
-            if (Form.ActiveForm != Program.mainForm || gpu == null)    // Don't refresh if not in focus or no GPU detected
+            if (Form.ActiveForm != Program.mainForm || gpu == null) // Don't refresh if not in focus or no GPU detected
                 return;
-            vramGb = (gpu.MemoryInformation.AvailableDedicatedVideoMemoryInkB / 1000f / 1024f);
-            vramFreeGb = (gpu.MemoryInformation.CurrentAvailableDedicatedVideoMemoryInkB / 1000f / 1024f);
-            Color col = Color.White;
+            vramGb = gpu.MemoryInformation.AvailableDedicatedVideoMemoryInkB / 1000f / 1024f;
+            vramFreeGb = gpu.MemoryInformation.CurrentAvailableDedicatedVideoMemoryInkB / 1000f / 1024f;
+            var col = Color.White;
             if (vramFreeGb < 2f)
                 col = Color.Orange;
             if (vramFreeGb < 1f)
                 col = Color.OrangeRed;
-            Program.mainForm.SetVramLabel($"{gpu.FullName}: {vramGb.ToString("0.00")} GB VRAM - {vramFreeGb.ToString("0.00")} GB Free", col);
+            Program.mainForm.SetVramLabel(
+                $"{gpu.FullName}: {vramGb.ToString("0.00")} GB VRAM - {vramFreeGb.ToString("0.00")} GB Free", col);
         }
 
-        public static async void RefreshLoop ()
+        public static async void RefreshLoop()
         {
             RefreshVram();
             await Task.Delay(1000);

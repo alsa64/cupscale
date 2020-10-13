@@ -1,31 +1,34 @@
-﻿using Cupscale.IO;
-using Cupscale.Main;
-using Cupscale.UI;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Cupscale.IO;
+using Cupscale.Main;
+using Cupscale.UI;
 
 namespace Cupscale.Cupscale
 {
-    class PostProcessingQueue
+    internal class PostProcessingQueue
     {
+        //public static bool ncnn;
+
+        public enum CopyMode
+        {
+            KeepStructure,
+            CopyToRoot
+        }
+
         public static Queue<string> outputFileQueue = new Queue<string>();
         public static List<string> processedFiles = new List<string>();
         public static List<string> outputFiles = new List<string>();
 
         public static bool run;
         public static string currentOutPath;
-
-        //public static bool ncnn;
-
-        public enum CopyMode { KeepStructure, CopyToRoot }
         public static CopyMode copyMode;
 
-        public static void Start (string outpath)
+        public static string lastOutfile;
+
+        public static void Start(string outpath)
         {
             currentOutPath = outpath;
             outputFileQueue.Clear();
@@ -35,21 +38,21 @@ namespace Cupscale.Cupscale
             run = true;
         }
 
-        public static void Stop ()
+        public static void Stop()
         {
             Logger.Log("PostProcessingQueue.Stop()");
             run = false;
         }
 
-        public static async Task Update ()
+        public static async Task Update()
         {
             while (run || AnyFilesLeft())
             {
-                string[] outFiles = Directory.GetFiles(Paths.imgOutPath, "*.png.*", SearchOption.AllDirectories);
+                var outFiles = Directory.GetFiles(Paths.imgOutPath, "*.png.*", SearchOption.AllDirectories);
                 Logger.Log("Queue Update() - " + outFiles.Length + " files in out folder");
-                foreach (string file in outFiles)
-                {
-                    if (!outputFileQueue.Contains(file) && !processedFiles.Contains(file) && !outputFiles.Contains(file))
+                foreach (var file in outFiles)
+                    if (!outputFileQueue.Contains(file) && !processedFiles.Contains(file) &&
+                        !outputFiles.Contains(file))
                     {
                         //processedFiles.Add(file);
                         outputFileQueue.Enqueue(file);
@@ -57,14 +60,16 @@ namespace Cupscale.Cupscale
                     }
                     else
                     {
-                        Logger.Log("Skipped " + file + " - Is In Queue: " + outputFileQueue.Contains(file) + " - Is Processed: " + processedFiles.Contains(file) + " - Is Outfile: " + outputFiles.Contains(file));
+                        Logger.Log("Skipped " + file + " - Is In Queue: " + outputFileQueue.Contains(file) +
+                                   " - Is Processed: " + processedFiles.Contains(file) + " - Is Outfile: " +
+                                   outputFiles.Contains(file));
                     }
-                }
+
                 await Task.Delay(1000);
             }
         }
 
-        static bool AnyFilesLeft ()
+        private static bool AnyFilesLeft()
         {
             if (IOUtils.GetAmountOfFiles(Paths.imgOutPath, true) > 0)
                 return true;
@@ -72,55 +77,56 @@ namespace Cupscale.Cupscale
             return false;
         }
 
-        public static string lastOutfile;
-
-        public static async Task ProcessQueue ()
+        public static async Task ProcessQueue()
         {
-            Stopwatch sw = new Stopwatch();
+            var sw = new Stopwatch();
             Logger.Log("ProcessQueue()");
             while (run || AnyFilesLeft())
             {
                 if (outputFileQueue.Count > 0)
                 {
-                    string file = outputFileQueue.Dequeue();
+                    var file = outputFileQueue.Dequeue();
                     Logger.Log("[Queue] Post-Processing " + Path.GetFileName(file));
                     sw.Restart();
                     await Upscale.PostprocessingSingle(file, true);
-                    string outFilename = Upscale.FilenamePostprocess(lastOutfile);
+                    var outFilename = Upscale.FilenamePostprocess(lastOutfile);
                     outputFiles.Add(outFilename);
-                    Logger.Log("[Queue] Done Post-Processing " + Path.GetFileName(file) + " in " + sw.ElapsedMilliseconds + "ms");
+                    Logger.Log("[Queue] Done Post-Processing " + Path.GetFileName(file) + " in " +
+                               sw.ElapsedMilliseconds + "ms");
 
-                    if(Upscale.overwriteMode == Upscale.Overwrite.Yes)
+                    if (Upscale.overwriteMode == Upscale.Overwrite.Yes)
                     {
-                        string suffixToRemove = "-" + Program.lastModelName.Replace(":", ".").Replace(">>", "+");
+                        var suffixToRemove = "-" + Program.lastModelName.Replace(":", ".").Replace(">>", "+");
                         if (copyMode == CopyMode.KeepStructure)
                         {
-                            string combinedPath = currentOutPath + outFilename.Replace(Paths.imgOutPath, "");
+                            var combinedPath = currentOutPath + outFilename.Replace(Paths.imgOutPath, "");
                             Directory.CreateDirectory(combinedPath.GetParentDir());
-                            File.Copy(outFilename, combinedPath.ReplaceInFilename(suffixToRemove, "", true));
+                            File.Copy(outFilename, combinedPath.ReplaceInFilename(suffixToRemove, ""));
                         }
+
                         if (copyMode == CopyMode.CopyToRoot)
-                        {
-                            File.Copy(outFilename, Path.Combine(currentOutPath, Path.GetFileName(outFilename).Replace(suffixToRemove, "")), true);
-                        }
+                            File.Copy(outFilename,
+                                Path.Combine(currentOutPath, Path.GetFileName(outFilename).Replace(suffixToRemove, "")),
+                                true);
                         File.Delete(outFilename);
                     }
                     else
                     {
                         if (copyMode == CopyMode.KeepStructure)
                         {
-                            string combinedPath = currentOutPath + outFilename.Replace(Paths.imgOutPath, "");
+                            var combinedPath = currentOutPath + outFilename.Replace(Paths.imgOutPath, "");
                             Directory.CreateDirectory(combinedPath.GetParentDir());
                             File.Copy(outFilename, combinedPath, true);
                         }
+
                         if (copyMode == CopyMode.CopyToRoot)
-                        {
                             File.Copy(outFilename, Path.Combine(currentOutPath, Path.GetFileName(outFilename)), true);
-                        }
                         File.Delete(outFilename);
                     }
+
                     BatchUpscaleUI.upscaledImages++;
                 }
+
                 await Task.Delay(250);
             }
         }

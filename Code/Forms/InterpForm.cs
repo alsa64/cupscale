@@ -1,20 +1,13 @@
-﻿using Cupscale.UI;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows.Forms;
+using Cupscale.UI;
 
 namespace Cupscale.Forms
 {
     public partial class AdvancedModelsForm : Form
     {
-        string leftModelName;
-        string rightModelName;
+        private readonly string leftModelName;
+        private readonly string rightModelName;
 
         public AdvancedModelsForm(string leftModel, string rightModel)
         {
@@ -42,7 +35,7 @@ namespace Cupscale.Forms
             UpdateLabels();
         }
 
-        void UpdateLabels ()
+        private void UpdateLabels()
         {
             leftModelLabel.Text = leftModelName + ": " + (100 - interpSlider.Value * 5) + "%";
             rightModelLabel.Text = rightModelName + ": " + interpSlider.Value * 5 + "%";

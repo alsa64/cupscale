@@ -1,22 +1,13 @@
-﻿using Cupscale.Main;
-using Cupscale.UI;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Cupscale.UI;
 using static Cupscale.Main.AdvancedModelSelection;
 
 namespace Cupscale.Forms
 {
     public partial class AdvancedModelForm : Form
     {
-
         public AdvancedModelForm()
         {
             InitializeComponent();
@@ -25,7 +16,7 @@ namespace Cupscale.Forms
 
         private void entry1Model1Interp_TextChanged(object sender, EventArgs e)
         {
-            int input = entry1Model1Interp.GetInt().Clamp(0, 100);
+            var input = entry1Model1Interp.GetInt().Clamp(0, 100);
             entry1Model1Interp.Text = input.ToString();
             e1m1i = input;
             e1m2i = 100 - e1m1i;
@@ -34,7 +25,7 @@ namespace Cupscale.Forms
 
         private void entry2Model1Interp_TextChanged(object sender, EventArgs e)
         {
-            int input = entry2Model1Interp.GetInt().Clamp(0, 100);
+            var input = entry2Model1Interp.GetInt().Clamp(0, 100);
             entry2Model1Interp.Text = input.ToString();
             e2m1i = input;
             e2m2i = 100 - e2m1i;
@@ -43,7 +34,7 @@ namespace Cupscale.Forms
 
         private void entry3Model1Interp_TextChanged(object sender, EventArgs e)
         {
-            int input = entry3Model1Interp.GetInt().Clamp(0, 100);
+            var input = entry3Model1Interp.GetInt().Clamp(0, 100);
             entry3Model1Interp.Text = input.ToString();
             e3m1i = input;
             e3m2i = 100 - e3m1i;
@@ -143,14 +134,13 @@ namespace Cupscale.Forms
             entry3Model2Interp.Text = e3m2i.ToString();
         }
 
-        void ChangeButtonText (Button btn, string newText)
+        private void ChangeButtonText(Button btn, string newText)
         {
             if (!string.IsNullOrWhiteSpace(newText))
                 btn.Text = newText;
-
         }
 
-        string GetModelName (string path)
+        private string GetModelName(string path)
         {
             return Path.GetFileNameWithoutExtension(path);
         }

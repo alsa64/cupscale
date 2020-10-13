@@ -1,21 +1,13 @@
-﻿using Cupscale.IO;
-using Cupscale.UI;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Cupscale.IO;
 
 namespace Cupscale.Forms
 {
     public partial class SettingsForm : Form
     {
-
-        bool initialized = false;
+        private bool initialized;
 
         public SettingsForm()
         {
@@ -31,7 +23,7 @@ namespace Cupscale.Forms
             initialized = true;
         }
 
-        void LoadSettings()
+        private void LoadSettings()
         {
             // ESRGAN/Cupscale
             Config.LoadComboxIndex(esrganVersion);
@@ -57,7 +49,7 @@ namespace Cupscale.Forms
             Program.mainForm.Enabled = true;
         }
 
-        void SaveSettings()
+        private void SaveSettings()
         {
             // ESRGAN/Cupscale
             Config.SaveComboxIndex(esrganVersion);
@@ -81,7 +73,8 @@ namespace Cupscale.Forms
         private void confAlphaBgColorBtn_Click(object sender, EventArgs e)
         {
             alphaBgColorDialog.ShowDialog();
-            string colorStr = ColorTranslator.ToHtml(Color.FromArgb(alphaBgColorDialog.Color.ToArgb())).Replace("#", "") + "FF";
+            var colorStr = ColorTranslator.ToHtml(Color.FromArgb(alphaBgColorDialog.Color.ToArgb())).Replace("#", "") +
+                           "FF";
             alphaBgColor.Text = colorStr;
             Config.Set("alphaBgColor", colorStr);
         }
@@ -114,7 +107,8 @@ namespace Cupscale.Forms
         private void uninstallResBtn_Click(object sender, EventArgs e)
         {
             ShippedEsrgan.Uninstall(false);
-            MessageBox.Show("Uninstalled resources.\nYou can now delete Cupscale.exe if you want to completely remove it from your PC.\n" +
+            MessageBox.Show(
+                "Uninstalled resources.\nYou can now delete Cupscale.exe if you want to completely remove it from your PC.\n" +
                 "However, your settings file was not deleted.", "Message");
             Program.Quit();
         }
@@ -123,7 +117,9 @@ namespace Cupscale.Forms
         {
             Close();
             ShippedEsrgan.Uninstall(true);
-            MessageBox.Show("Uninstalled all files.\nYou can now delete Cupscale.exe if you want to completely remove it from your PC.", "Message");
+            MessageBox.Show(
+                "Uninstalled all files.\nYou can now delete Cupscale.exe if you want to completely remove it from your PC.",
+                "Message");
             Program.Quit();
         }
 
@@ -134,7 +130,6 @@ namespace Cupscale.Forms
 
         private void cudaFallback_SelectedIndexChanged(object sender, EventArgs e)
         {
-
             //MessageBox.Show("This only serves as a fallback mode.\nDon't use this if you have an Nvidia GPU.\n\n" +
             //"The following features do not work with Vulkan/NCNN:\n- Model Interpolation\n- Model Chaining\n"
             //+ "- Custom Tile Size (Uses Automatic Tile Size)", "Warning");

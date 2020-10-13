@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
 namespace Cupscale.Cupscale
 {
@@ -13,7 +8,7 @@ namespace Cupscale.Cupscale
         public int zoom;
         public Point autoScrollPosition;
 
-        public PreviewState (Image img, int currentZoom, Point autoScrollPos)
+        public PreviewState(Image img, int currentZoom, Point autoScrollPos)
         {
             image = img;
             zoom = currentZoom;
